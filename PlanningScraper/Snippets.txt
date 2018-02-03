@@ -1,0 +1,27 @@
+﻿
+//request.Content.Headers.Add("Content-Length", request.Content.ToString().Length.ToString());
+//request.Content.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+//var searchPostResponseDoc = CsQuery.CQ.Create(searchPostResponseContent);
+//var searchPostResponseAction = searchPostResponseDoc.Select("form").Attr("action");
+//var startIndex = searchPostResponseAction.IndexOf("XMLLoc=", StringComparison.CurrentCulture);
+//var endIndex = searchPostResponseAction.LastIndexOf(".xml", StringComparison.CurrentCulture) + 4;
+//var XMLLoc = Uri.UnescapeDataString(searchPostResponseAction.Substring(startIndex, endIndex - startIndex));
+//var nextPageAction = $"StdResults.aspx?PT=Planning Applications On-Line&PS=100&{XMLLoc}&FT=Planning Application Search Results&XSLTemplate=/Northgate/PlanningExplorer/SiteFiles/Skins/Wiltshire/xslt/PL/PLResults.xslt&p=10";
+//var nextPageUrl = $"/Northgate/PlanningExplorer/Generic/{nextPageAction}";
+//var cookieUri = new Uri("http://planning.wiltshire.gov.uk/Northgate/PlanningExplorer/KeywordsSearch.aspx");
+//IEnumerable<Cookie> responseCookies = cookieContainer.GetCookies(cookieUri).Cast<Cookie>();
+//var uri = "/Northgate/PlanningExplorer/Generic/StdResults.aspx?PT=Planning%20Applications%20On-Line&SC=Date%20Received%20is%20between%2001%20December%202017%20and%2028%20February%202018%20and%20Development%20Description%20contains%20DWELLINGS&FT=Planning%20Application%20Search%20Results&XMLSIDE=/Northgate/PlanningExplorer/SiteFiles/Skins/Wiltshire/Menus/PL.xml&XSLTemplate=/Northgate/PlanningExplorer/SiteFiles/Skins/Wiltshire/xslt/PL/PLResults.xslt&PS=10&XMLLoc=/Northgate/PlanningExplorer/generic/XMLtemp/hvbnr5iswpmj13bm3u3yzuu5/1cadb6c6-813f-4ff2-94df-f757aae5e63c.xml";
+//client.DefaultRequestHeaders.Add("Referer", "http://planning.wiltshire.gov.uk/Northgate/PlanningExplorer/KeywordsSearch.aspx");
+//client.DefaultRequestHeaders.Add("Cookie", "_ga=GA1.3.1095016530.1517476707; _gid=GA1.3.329444085.1517476707; ASCCPref=1; ASP.NET_SessionId=hvbnr5iswpmj13bm3u3yzuu5; MVMSession=ID=563f2b5b-c19d-46d0-9ea9-99c6d99e9eec");
+//private static void SetDefaultHeaders(HttpClient client)
+//{
+//    client.DefaultRequestHeaders.Add("Host", "planning.wiltshire.gov.uk");
+//    client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+//    client.DefaultRequestHeaders.Add("Cache-Control", "max-age=0");
+//    client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+//    client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36");
+//    client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+//    client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate");
+//    client.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.9,en-US;q=0.8,fr;q=0.7");
+//}
+//client.DefaultRequestHeaders.Add("Origin", "http://planning.wiltshire.gov.uk");
