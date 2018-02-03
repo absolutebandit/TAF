@@ -35,9 +35,7 @@ namespace PlanningScraper
                     client.DefaultRequestHeaders.Add("Referer", $"{_baseUri}{_keywordSearchRoute}");
 
                     var searchPostResponse = client.SendAsync(request).GetAwaiter().GetResult();
-                    var redirectUrl = searchPostResponse.Headers.Location.ToString()
-                        .Replace($"PS={_defaultPageSize}", $"PS={_desiredPageSize}");
-
+                    var redirectUrl = searchPostResponse.Headers.Location.ToString().Replace($"PS={_defaultPageSize}", $"PS={_desiredPageSize}");
                     var searchResults = client.GetAsync(redirectUrl, CancellationToken.None).GetAwaiter().GetResult();
 
                     return searchResults;

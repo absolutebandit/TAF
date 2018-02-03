@@ -52,6 +52,7 @@
       <DependentUpon>ExceptionMessages.resx</DependentUpon>
     </Compile>
     <Compile Include="PlanningApplication.cs" />
+    <Compile Include="PlanningDataExtractor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExtractDataFailedException.cs" />

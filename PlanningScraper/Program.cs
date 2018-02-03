@@ -13,7 +13,8 @@ namespace PlanningScraper
                 var searchResults = searcher.ExecuteSearch();
 
                 // Execute data extract
-
+                var extractor = new PlanningDataExtractor();
+                var planningApplications = extractor.ExtractData(searchResults);
             }
             catch (SearchFailedException sfe)
             {
