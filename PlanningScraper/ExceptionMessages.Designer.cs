@@ -70,6 +70,15 @@ namespace PlanningScraper {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ooops, that&apos;s not good, something went very wrong!{0}ExceptionDetail: {1}.
+        /// </summary>
+        internal static string GeneralFailureMessage {
+            get {
+                return ResourceManager.GetString("GeneralFailureMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ooops, that&apos;s not good, something went wrong with the search!{0}ExceptionDetail: {1}.
         /// </summary>
         internal static string SearchFailedMessage {

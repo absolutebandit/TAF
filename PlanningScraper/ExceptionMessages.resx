@@ -120,6 +120,9 @@
   <data name="DataExtractFailedMessage" xml:space="preserve">
     <value>Ooops, that's not good, something went wrong with the data extract!{0}ExceptionDetail: {1}</value>
   </data>
+  <data name="GeneralFailureMessage" xml:space="preserve">
+    <value>Ooops, that's not good, something went very wrong!{0}ExceptionDetail: {1}</value>
+  </data>
   <data name="SearchFailedMessage" xml:space="preserve">
     <value>Ooops, that's not good, something went wrong with the search!{0}ExceptionDetail: {1}</value>
   </data>

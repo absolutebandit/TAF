@@ -18,11 +18,11 @@ namespace PlanningScraper
         private readonly string _startDate = ConfigurationManager.AppSettings["startDate"];
         private readonly string _endDate = ConfigurationManager.AppSettings["endDate"];
 
-        public HttpResponseMessage ExecuteSearch()
+        public HttpResponseMessage ExecuteSearch(out CookieContainer cookieContainer)
         {
             try
             {
-                var cookieContainer = new CookieContainer();
+                cookieContainer = new CookieContainer();
                 var handler = CreateHttpClientHandler(cookieContainer);
 
                 using (var client = new HttpClient(handler))
@@ -47,7 +47,7 @@ namespace PlanningScraper
             }
         }
 
-        private static HttpClientHandler CreateHttpClientHandler(CookieContainer cookieContainer)
+        public static HttpClientHandler CreateHttpClientHandler(CookieContainer cookieContainer)
         {
             var handler = new HttpClientHandler()
             {
