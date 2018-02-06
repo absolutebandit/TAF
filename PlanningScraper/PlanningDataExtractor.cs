@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using CsQuery;
@@ -12,6 +13,7 @@ namespace PlanningScraper
         private readonly string _baseUri = ConfigurationManager.AppSettings["baseUri"];
         private readonly List<PlanningApplication> _planningApplications = new List<PlanningApplication>();
         private static readonly string ApplicationPageRoute = ConfigurationManager.AppSettings["applicationPageRoute"];
+        private static readonly string LogFile = ConfigurationManager.AppSettings["logFileLocation"];
 
         public IEnumerable<PlanningApplication> ExtractData(HttpResponseMessage searchResults, CookieContainer cookieContainer)
         {
@@ -27,17 +29,25 @@ namespace PlanningScraper
 
                     var searchResultsHtml = searchResults.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                     var searchPageResponseDoc = CQ.Create(searchResultsHtml);
+                    
+                    LogSearchResults(searchResultsHtml, searchPageResponseDoc);
 
+                    var row = 1;
                     searchPageResponseDoc.Select("table tbody tr").Each(tr =>
                     {
                         var planningApplication = new PlanningApplication();
-
                         GetSeachRowDetail(tr, planningApplication);
+
+                        LogApplicationRetrieval(row, planningApplication);
+
                         GetPlanningApplicationDetail(client, planningApplication);
 
                         _planningApplications.Add(planningApplication);
 
+                        row++;
                     });
+
+                    LogFinishedExtract();
 
                     return _planningApplications;
                 }
@@ -132,6 +142,27 @@ namespace PlanningScraper
                         break;
                 }
             });
+        }
+
+        private static void LogFinishedExtract()
+        {
+            var logText = $"Finished extracting planning data...{Environment.NewLine}{Environment.NewLine}";
+            Console.WriteLine(logText);
+            File.AppendAllText(LogFile, logText);
+        }
+
+        private static void LogSearchResults(string searchResultsHtml, CQ searchPageResponseDoc)
+        {
+            Console.WriteLine($"Found {searchPageResponseDoc.Select("table tbody tr").Length} planning applications...{Environment.NewLine}{Environment.NewLine}");
+            var logText = $"Search Results HTML: {Environment.NewLine}{searchResultsHtml}{Environment.NewLine}{Environment.NewLine}";
+            File.AppendAllText(LogFile, logText);
+        }
+
+        private static void LogApplicationRetrieval(int row, PlanningApplication planningApplication)
+        {
+            var logText = $"Getting application detail for result number {row} application reference {planningApplication.ApplicationReference} from {Environment.NewLine}{planningApplication.ApplicationLink}{Environment.NewLine}{Environment.NewLine}";
+            Console.WriteLine(logText);
+            File.AppendAllText(LogFile, logText);
         }
     }
 }
