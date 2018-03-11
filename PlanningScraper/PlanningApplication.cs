@@ -29,5 +29,9 @@
         public string Parishes { get; set; }
 
         public string CaseOfficer { get; set; }
+
+        public string DocumentsLink { get; set; }
+
+        public string AllDocumentLinks { get; set; }
     }
 }

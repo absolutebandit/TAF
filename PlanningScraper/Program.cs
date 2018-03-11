@@ -1,117 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Net;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using PlanningScraper.Configuration;
+using PlanningScraper.Exceptions;
+using PlanningScraper.Interfaces;
+using Unity;
 
 namespace PlanningScraper
 {
     class Program
     {
-        private static readonly string OutputFile = ConfigurationManager.AppSettings["outputFileLocation"];
-        private static readonly string LogFile = ConfigurationManager.AppSettings["logFileLocation"];
+        private readonly IUnityContainer _container = new UnityContainer();
+        private ILogger _logger;
+        private ISiteSearcher _searcher;
+        private IPlanningDataExtractor _extractor;
+        private IFileWriter _fileWriter;
+        private CancellationToken _cancellationToken;
 
         static void Main(string[] args)
         {
+            var site = args[0];
+            var program = new Program();
+            program.Run(site).GetAwaiter().GetResult();
+        }
+
+        private async Task Run(string site)
+        {
             try
             {
-                Initialize();
+                Initialise(site);
 
-                var searcher = new SiteSearcher();
-                var searchResults = searcher.ExecuteSearch(out CookieContainer cookieContainer);
-
-                var extractor = new PlanningDataExtractor();
-                var planningApplications = extractor.ExtractData(searchResults, cookieContainer);
-
-                WriteOutputFile(planningApplications);
+                var searchDataAndResults = await _searcher.ExecuteSearchAsync(_cancellationToken);
+                var planningApplications = await _extractor.ExtractDataAsync(searchDataAndResults.SearchResultsPages, searchDataAndResults.CookieContainer, _cancellationToken);
+                await _fileWriter.WriteOutputFileAsync(planningApplications, _cancellationToken);
             }
             catch (SearchFailedException sfe)
             {
-                Console.WriteLine(ExceptionMessages.SearchFailedMessage, Environment.NewLine, sfe);
-                File.AppendAllText(LogFile,
-                    string.Format(ExceptionMessages.SearchFailedMessage, Environment.NewLine, sfe) + Environment.NewLine);
+                await _logger.LogExceptionAsync(ExceptionMessages.SearchFailedMessage, sfe, _cancellationToken);
             }
             catch (ExtractDataFailedException ede)
             {
-                Console.WriteLine(ExceptionMessages.DataExtractFailedMessage, Environment.NewLine, ede);
-                DeleteLogFile();
-                File.AppendAllText(LogFile,
-                    string.Format(ExceptionMessages.DataExtractFailedMessage, Environment.NewLine, ede) + Environment.NewLine);
+                await _logger.LogExceptionAsync(ExceptionMessages.DataExtractFailedMessage, ede, _cancellationToken);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ExceptionMessages.GeneralFailureMessage, Environment.NewLine, ex);
-                DeleteLogFile();
-                File.WriteAllText(LogFile,
-                    string.Format(ExceptionMessages.GeneralFailureMessage, Environment.NewLine, ex) + Environment.NewLine);
+                await _logger.LogExceptionAsync(ExceptionMessages.GeneralFailureMessage, ex, _cancellationToken);
             }
         }
 
-        private static void Initialize()
+        private void Initialise(string site)
         {
-            DeleteLogFile();
-            File.WriteAllText(LogFile, $"Initializing...{Environment.NewLine}{Environment.NewLine}");
-        }
-
-        private static void DeleteLogFile()
-        {
-            if (File.Exists(LogFile))
-            {
-                File.Delete(LogFile);
-            }
-        }
-
-        private static void WriteOutputFile(IEnumerable<PlanningApplication> planningApplications)
-        {
-            LogWritingFileOutput();
-
-            var sb = new StringBuilder();
-
-            sb.Append(
-                $"Application Reference\tApplication Type\tCurrent Status\tProposal\tSite Address\tRegistered Date\tConsultation Expiry Date\t" +
-                $"Target Date\tName of Applicant\tName of Agent\tCase Officer\tParishes\tWards{Environment.NewLine}");
-
-            foreach (var application in planningApplications)
-            {
-                sb.Append($"{application.ApplicationReference}\t" +
-                          $"{application.ApplicationType}\t" +
-                          $"{application.CurrentStatus}\t" +
-                          $"{application.Proposal}\t" +
-                          $"{application.SiteAddress}\t" +
-                          $"{application.RegisteredDate}\t" +
-                          $"{application.ConsultationExpiryDate}\t" +
-                          $"{application.TargetDate}\t" +
-                          $"{application.NameOfApplicant}\t" +
-                          $"{application.NameOfAgent}\t" +
-                          $"{application.CaseOfficer}\t" +
-                          $"{application.Parishes}\t" +
-                          $"{application.Wards}" + 
-                          $"{Environment.NewLine}");
-            }
-
-            if (File.Exists(OutputFile))
-            {
-                File.Delete(OutputFile);
-            }
-
-            File.WriteAllText(OutputFile, sb.ToString());
-
-            LogFinished();
-        }
-
-        private static void LogWritingFileOutput()
-        {
-            var logText = $"Writing file output...{Environment.NewLine}{Environment.NewLine}";
-            Console.WriteLine(logText);
-            File.AppendAllText(LogFile, logText);
-        }
-
-        private static void LogFinished()
-        {
-            var logText = $"Finished.";
-            Console.WriteLine(logText);
-            File.AppendAllText(LogFile, logText);
+            _cancellationToken = new CancellationToken();
+            UnityConfiguration.RegisterComponents(_container);
+            _logger = _container.Resolve<ILogger>();
+            _searcher = _container.Resolve<ISiteSearcher>(site.ToLower());
+            _extractor = _container.Resolve<IPlanningDataExtractor>(site.ToLower());
+            _fileWriter = _container.Resolve<IFileWriter>();
         }
     }
 }

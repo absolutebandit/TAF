@@ -1,65 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using CsQuery;
-using CsQuery.EquationParser.Implementation;
-using CsQuery.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlanningScraper;
+using PlanningScraper.Wiltshire;
 
 namespace PlanningScraperTests
 {
     [TestClass]
     public class SearchResultExtractorTests
     {
-        private static CsQuery.CQ _searchPageResponseDoc;
-        private static CsQuery.CQ _planningApplicationDoc;
+        private static CQ _searchPageResponseDoc;
+        private static CQ _planningApplicationDoc;
+        private static CQ _documentSearchResultsDoc;
 
         [ClassInitialize]
         public static void Setup(TestContext context)
         {
             var searchResultsHtml = File.ReadAllText("SearchResultsSample.html");
-            _searchPageResponseDoc = CsQuery.CQ.Create(searchResultsHtml);
+            _searchPageResponseDoc = CQ.Create(searchResultsHtml);
 
             var planningApplicationHtml = File.ReadAllText("PlanningApplicationSample.html");
-            _planningApplicationDoc = CsQuery.CQ.Create(planningApplicationHtml);
+            _planningApplicationDoc = CQ.Create(planningApplicationHtml);
+
+            var documentSearchResultsHtml = File.ReadAllText("DocumentSearchResults.html");
+            _documentSearchResultsDoc = CQ.Create(documentSearchResultsHtml);
         }
 
         [TestMethod]
         public void GivenASearchResultDocument_CanExtractDetails()
         {
+            // Arrange
             var planningApplications = new List<PlanningApplication>();
 
+            // Act
             _searchPageResponseDoc.Select("table tbody tr").Each(tr =>
             {
                 var planningApplication = new PlanningApplication();
-                var cellPos = 0;
-                foreach (var cell in tr.ChildElements)
-                {
-                    switch (cellPos)
-                    {
-                        // Application
-                        case 0:
-                            planningApplication.ApplicationReference = cell.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                            planningApplication.ApplicationLink = cell.FirstElementChild.Attributes["href"].Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", "; ");
-                            break;
-                            
-                        // Site
-                        case 1:
-                            planningApplication.SiteAddress = cell.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", ", ").Replace("\n", string.Empty);
-                            break;
-
-                        // Proposal
-                        case 2:
-                            planningApplication.Proposal = cell.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                            break;
-                    }
-                    cellPos++;
-                }
+               
+                WiltshireExtractor.GetSeachRowDetailAsync(tr,planningApplication, CancellationToken.None).GetAwaiter().GetResult();
 
                 planningApplications.Add(planningApplication);
 
+                // Assert
                 Assert.IsNotNull(planningApplication.ApplicationReference);
                 Assert.IsNotNull(planningApplication.ApplicationLink);
                 Assert.IsNotNull(planningApplication.SiteAddress);
@@ -74,62 +60,15 @@ namespace PlanningScraperTests
         }
 
         [TestMethod]
-        public void GivenAnApplicationPage_CanExtractDetails()
+        public async Task GivenAnApplicationPage_CanExtractDetails()
         {
+            // Arrange
             var planningApplication = new PlanningApplication();
 
-            _planningApplicationDoc.Select(".planappkd dl dt").Each(dt =>
-            {
-                switch (dt.InnerText)
-                {
-                    case "Registered (validated)":
-                        planningApplication.RegisteredDate = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
+            // Act 
+            await WiltshireExtractor.ExtractPlanningApplicationData(planningApplication, _planningApplicationDoc);
 
-                    case "Consultation expiry":
-                        planningApplication.ConsultationExpiryDate = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-
-                    case "Target date for decision":
-                        planningApplication.TargetDate = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-                }
-            });
-
-            _planningApplicationDoc.Select("#wrapper dl:nth-of-type(2) dt").Each(dt =>
-            {
-                switch (dt.InnerText)
-                {
-                    case "Application type":
-                        planningApplication.ApplicationType = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-
-                    case "Current status of application":
-                        planningApplication.CurrentStatus = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-
-                    case "Name of applicant":
-                        planningApplication.NameOfApplicant = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-
-                    case "Name of agent":
-                        planningApplication.NameOfAgent = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-
-                    case "Wards":
-                        planningApplication.Wards = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-
-                    case "Parishes":
-                        planningApplication.Parishes = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-
-                    case "Case officer":
-                        planningApplication.CaseOfficer = dt.NextElementSibling.InnerText.Trim().Replace("\t", string.Empty).Replace("\r\n", string.Empty).Replace("\n", string.Empty);
-                        break;
-                }
-            });
-
+            // Assert
             Assert.IsNotNull(planningApplication.RegisteredDate);
             Assert.IsNotNull(planningApplication.ConsultationExpiryDate);
             Assert.IsNotNull(planningApplication.TargetDate);
@@ -140,6 +79,7 @@ namespace PlanningScraperTests
             Assert.IsNotNull(planningApplication.Wards);
             Assert.IsNotNull(planningApplication.Parishes);
             Assert.IsNotNull(planningApplication.CaseOfficer);
+            Assert.IsNotNull(planningApplication.DocumentsLink);
 
             Assert.AreNotEqual(string.Empty, planningApplication.RegisteredDate);
             Assert.AreNotEqual(string.Empty, planningApplication.ConsultationExpiryDate);
@@ -151,6 +91,21 @@ namespace PlanningScraperTests
             Assert.AreNotEqual(string.Empty, planningApplication.Wards);
             Assert.AreNotEqual(string.Empty, planningApplication.Parishes);
             Assert.AreNotEqual(string.Empty, planningApplication.CaseOfficer);
+            Assert.AreNotEqual(string.Empty, planningApplication.DocumentsLink);
+        }
+
+        [TestMethod]
+        public async Task GivenDocumentSearchResults_CanExtractDocumentLinks()
+        {
+            // Arrange
+            var planningApplication = new PlanningApplication();
+
+            // Act
+            await WiltshireExtractor.ExtractDocumentLinksAsync(planningApplication, _documentSearchResultsDoc, CancellationToken.None);
+
+            // Assert
+            Assert.IsNotNull(planningApplication.AllDocumentLinks);
+            Assert.AreNotEqual(string.Empty, planningApplication.AllDocumentLinks);
         }
     }
 }
