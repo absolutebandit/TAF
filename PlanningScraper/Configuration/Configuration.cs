@@ -4,6 +4,7 @@ namespace PlanningScraper.Configuration
 {
     public class Configuration : IConfiguration
     {
+        public string SearchTerm { get; set; }
         public string BaseUri { get; set; }
         public string KeywordSearchRoute { get; set; }
         public string ApplicationPageRoute { get; set; }

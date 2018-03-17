@@ -4,6 +4,7 @@ namespace PlanningScraper.Interfaces
 {
     public interface IConfiguration
     {
+        string SearchTerm { get; set; }
         string BaseUri { get; set; }
         string KeywordSearchRoute { get; set; }
         string ApplicationPageRoute { get; set; }

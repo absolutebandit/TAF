@@ -78,9 +78,9 @@ namespace PlanningScraper.Poole
             {
                 new KeyValuePair<string, string>("__VIEWSTATE", viewState),
                 new KeyValuePair<string, string>("__VIEWSTATEGENERATOR", viewStateGenerator),
-                new KeyValuePair<string, string>("txtProposal", _searchConfig.SearchTerm),
+                new KeyValuePair<string, string>("txtProposal", _configuration.SearchTerm),
                 new KeyValuePair<string, string>("rbGroup", "rbRange"),
-                new KeyValuePair<string, string>("cboSelectDateValue", _searchConfig.DateType),
+                new KeyValuePair<string, string>("cboSelectDateValue", "DATE_VALIDATED"),
                 new KeyValuePair<string, string>("cboDays", "1"),
                 new KeyValuePair<string, string>("cboMonths", "1"),
                 new KeyValuePair<string, string>("dateStart", _searchConfig.StartDate),
@@ -101,8 +101,7 @@ namespace PlanningScraper.Poole
         {
             var logText =
                 $"{DateTime.Now} - Starting planning application search with search parameters: {Environment.NewLine}" +
-                $"Search Term: {_searchConfig.SearchTerm}{Environment.NewLine}" +
-                $"Date Type: {_searchConfig.DateType}{Environment.NewLine}" +
+                $"Search Term: {_configuration.SearchTerm}{Environment.NewLine}" +
                 $"Start Date: {_searchConfig.StartDate}{Environment.NewLine}" +
                 $"End Date: {_searchConfig.EndDate}{Environment.NewLine}{Environment.NewLine}";
 
