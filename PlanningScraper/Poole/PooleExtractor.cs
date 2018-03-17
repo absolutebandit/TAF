@@ -11,19 +11,19 @@ using PlanningScraper.Exceptions;
 using PlanningScraper.Extensions;
 using PlanningScraper.Interfaces;
 
-namespace PlanningScraper.Wiltshire
+namespace PlanningScraper.Poole
 {
-    public class WiltshireExtractor : IPlanningDataExtractor
+    public class PooleExtractor : IPlanningDataExtractor
     {
         private readonly List<PlanningApplication> _planningApplications = new List<PlanningApplication>();
-        private readonly IWiltshireConfig _configuration;
+        private readonly IPooleConfig _configuration;
         private readonly ISystemConfig _systemConfig;
         private readonly ILogger _logger;
 
-        public WiltshireExtractor(ISystemConfig systemConfig, IWiltshireConfig configuration, ILogger logger)
+        public PooleExtractor(ISystemConfig systemConfig, IPooleConfig configuration, ILogger logger)
         {
-            _systemConfig = systemConfig;
             _configuration = configuration;
+            _systemConfig = systemConfig;
             _logger = logger;
         }
 
@@ -103,7 +103,7 @@ namespace PlanningScraper.Wiltshire
             await Task.CompletedTask;
         }
 
-        public async Task GetPlanningApplicationDetailAsync(HttpClientWrapper client, PlanningApplication planningApplication, CancellationToken cancellationToken)
+        public async Task GetPlanningApplicationDetailAsync(HttpClient client, PlanningApplication planningApplication, CancellationToken cancellationToken)
         {
             var request = new HttpRequestMessage();
             request.Build(this._configuration, HttpMethod.Get, $"{_configuration.ApplicationPageRoute}{planningApplication.ApplicationLink}");
@@ -173,7 +173,7 @@ namespace PlanningScraper.Wiltshire
             await Task.CompletedTask;
         }
 
-        public async Task GetPlanningApplicationDocumentLinksAsync(HttpClientWrapper client, PlanningApplication planningApplication, CancellationToken cancellationToken)
+        public async Task GetPlanningApplicationDocumentLinksAsync(HttpClient client, PlanningApplication planningApplication, CancellationToken cancellationToken)
         {
             var request = new HttpRequestMessage();
             request.Build(this._configuration, HttpMethod.Get, $"{planningApplication.DocumentsLink}");

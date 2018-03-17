@@ -41,6 +41,9 @@
     <Reference Include="Polly, Version=5.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.5.8.0\lib\net45\Polly.dll</HintPath>
     </Reference>
+    <Reference Include="SimpleConfig, Version=1.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\simple-config.1.4.0\lib\net40\SimpleConfig.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -77,22 +80,34 @@
     <Compile Include="Communications\HttpRequestMessageExtensions.cs" />
     <Compile Include="Communications\WebProxy.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\TimeSpanBindingAttribute.cs" />
+    <Compile Include="Configuration\TimeSpanBindingStrategy.cs" />
+    <Compile Include="Configuration\SystemConfig.cs" />
+    <Compile Include="Configuration\SearchConfig.cs" />
     <Compile Include="ExceptionMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ExceptionMessages.resx</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IPooleConfig.cs" />
+    <Compile Include="Interfaces\ISearchConfig.cs" />
+    <Compile Include="Interfaces\ISystemConfig.cs" />
     <Compile Include="Output\FileWriter.cs" />
     <Compile Include="Communications\HttpClientHelpers.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IFileWriter.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Output\Logger.cs" />
+    <Compile Include="Poole\PooleConfig.cs" />
+    <Compile Include="Poole\PooleExtractor.cs" />
+    <Compile Include="Poole\PooleSearcher.cs" />
     <Compile Include="SearchDataAndResults.cs" />
     <Compile Include="Interfaces\ISiteSearcher.cs" />
     <Compile Include="Interfaces\IPlanningDataExtractor.cs" />
     <Compile Include="PlanningApplication.cs" />
     <Compile Include="Configuration\UnityConfiguration.cs" />
+    <Compile Include="Interfaces\IWiltshireConfig.cs" />
+    <Compile Include="Wiltshire\WiltshireConfig.cs" />
     <Compile Include="Wiltshire\WiltshireExtractor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -116,5 +131,6 @@
       <LastGenOutput>ExceptionMessages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

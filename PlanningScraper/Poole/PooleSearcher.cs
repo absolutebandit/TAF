@@ -8,16 +8,16 @@ using PlanningScraper.Communications;
 using PlanningScraper.Exceptions;
 using PlanningScraper.Interfaces;
 
-namespace PlanningScraper.Wiltshire
+namespace PlanningScraper.Poole
 {
-    public class WiltshireSearcher : ISiteSearcher
+    public class PooleSearcher : ISiteSearcher
     {
         private readonly ISystemConfig _systemConfig;
         private readonly ISearchConfig _searchConfig;
-        private readonly IWiltshireConfig _configuration;
+        private readonly IPooleConfig _configuration;
         private readonly ILogger _logger;
 
-        public WiltshireSearcher(ISystemConfig systemConfig, ISearchConfig searchConfig, IWiltshireConfig configuration, ILogger logger)
+        public PooleSearcher(ISystemConfig systemConfig, ISearchConfig searchConfig, IPooleConfig configuration, ILogger logger)
         {
             _systemConfig = systemConfig;
             _searchConfig = searchConfig;

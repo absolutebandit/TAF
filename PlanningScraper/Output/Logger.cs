@@ -10,9 +10,9 @@ namespace PlanningScraper.Output
     {
         private readonly string _logFileLocation;
 
-        public Logger(IConfiguration configuration)
+        public Logger(ISystemConfig systemConfig)
         {
-            _logFileLocation = $"{Environment.CurrentDirectory}\\Logs\\{configuration.LogFileName}";
+            _logFileLocation = $"{Environment.CurrentDirectory}\\Logs\\{systemConfig.LogFileName}";
             Initialise();
         }
 

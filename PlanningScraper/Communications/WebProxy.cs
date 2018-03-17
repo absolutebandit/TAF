@@ -6,17 +6,17 @@ namespace PlanningScraper.Communications
 {
     public class WebProxy : IWebProxy
     {
-        private readonly IConfiguration _configuration;
+        private readonly ISystemConfig _systemConfig;
 
-        public WebProxy(IConfiguration configuration)
+        public WebProxy(ISystemConfig systemConfig)
         {
-            _configuration = configuration;
-            this.Credentials = new NetworkCredential(string.Format(configuration.ProxyUserName, new Random().Next(10000).ToString().PadLeft(5, '0')), configuration.ProxyPassword);
+            _systemConfig = systemConfig;
+            this.Credentials = new NetworkCredential(string.Format(systemConfig.ProxyUserName, new Random().Next(10000).ToString().PadLeft(5, '0')), systemConfig.ProxyPassword);
         }
 
         public ICredentials Credentials { get; set; }
 
-        public Uri GetProxy(Uri destination) { return new Uri(_configuration.ProxyUri); }
+        public Uri GetProxy(Uri destination) { return new Uri(_systemConfig.ProxyUri); }
 
         public bool IsBypassed(Uri host) { return false; }
     }

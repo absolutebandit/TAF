@@ -6,13 +6,13 @@ namespace PlanningScraper.Communications
 {
     public class HttpClientHelpers
     {
-        public static HttpClient CreateClient(IConfiguration configuration, ILogger logger, CookieContainer cookieContainer)
+        public static HttpClientWrapper CreateClient(ISystemConfig systemConfig, IConfiguration configuration, ILogger logger, CookieContainer cookieContainer)
         {
-            var handler = CreateHttpClientHandler(configuration, cookieContainer);
-            return new HttpClientWrapper(handler, logger);
+            var handler = CreateHttpClientHandler(systemConfig, configuration, cookieContainer);
+            return new HttpClientWrapper(handler, logger, systemConfig);
         }
 
-        public static HttpClientHandler CreateHttpClientHandler(IConfiguration configuration, CookieContainer cookieContainer)
+        public static HttpClientHandler CreateHttpClientHandler(ISystemConfig systemConfig, IConfiguration configuration, CookieContainer cookieContainer)
         {
             var handler = new HttpClientHandler()
             {
@@ -25,7 +25,7 @@ namespace PlanningScraper.Communications
 
             if (handler.UseProxy)
             {
-                handler.Proxy = new WebProxy(configuration);
+                handler.Proxy = new WebProxy(systemConfig);
             }
 
             return handler;

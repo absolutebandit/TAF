@@ -2,6 +2,7 @@
 using System.Configuration;
 using PlanningScraper.Interfaces;
 using PlanningScraper.Output;
+using PlanningScraper.Poole;
 using PlanningScraper.Wiltshire;
 using Unity;
 
@@ -9,32 +10,26 @@ namespace PlanningScraper.Configuration
 {
     public static class UnityConfiguration
     {
-        public static void RegisterComponents(IUnityContainer container)
+        public static void RegisterComponents(IUnityContainer container, string[] site)
         {
-            container.RegisterInstance<IConfiguration>(new Configuration
-            {
-                SearchTerm = ConfigurationManager.AppSettings["searchTerm"],
-                BaseUri = ConfigurationManager.AppSettings["baseUri"],
-                ApplicationPageRoute = ConfigurationManager.AppSettings["applicationPageRoute"],
-                KeywordSearchRoute = ConfigurationManager.AppSettings["keywordSearchRoute"],
-                DateType = ConfigurationManager.AppSettings["dateType"],
-                StartDate = ConfigurationManager.AppSettings["startDate"],
-                EndDate = ConfigurationManager.AppSettings["endDate"],
-                DefaultPageSize = ConfigurationManager.AppSettings["defaultPageSize"],
-                DesiredPageSize = ConfigurationManager.AppSettings["desiredPageSize"],
-                LogFileName = ConfigurationManager.AppSettings["logFileName"],
-                OutputFileName = ConfigurationManager.AppSettings["outputFileName"],
-                RequestDelayTimeSpan = TimeSpan.Parse(ConfigurationManager.AppSettings["requestDelayTimeSpan"]),
-                UseProxy = Boolean.Parse(ConfigurationManager.AppSettings["useProxy"]),
-                ProxyUserName = ConfigurationManager.AppSettings["proxyUserName"],
-                ProxyPassword = ConfigurationManager.AppSettings["proxyPassword"],
-                ProxyUri = ConfigurationManager.AppSettings["proxyUri"]
-            });
+            ISystemConfig systemConfig = (SystemConfig)(dynamic)ConfigurationManager.GetSection("systemConfig");
+            container.RegisterInstance<ISystemConfig>(systemConfig);
 
-            container.RegisterInstance<ILogger>(new Logger(container.Resolve<IConfiguration>()));
+            ISearchConfig searchConfig = (SearchConfig)(dynamic)ConfigurationManager.GetSection("searchConfig");
+            container.RegisterInstance<ISearchConfig>(searchConfig);
+
+            IWiltshireConfig wiltshireConfig = (WiltshireConfig)(dynamic)ConfigurationManager.GetSection("wiltshireConfig");
+            container.RegisterInstance<IWiltshireConfig>(wiltshireConfig);
+
+            IPooleConfig pooleConfig = (PooleConfig)(dynamic)ConfigurationManager.GetSection("pooleConfig");
+            container.RegisterInstance<IPooleConfig>(pooleConfig);
+
+            container.RegisterInstance<ILogger>(new Logger(container.Resolve<ISystemConfig>()));
             container.RegisterType<ISiteSearcher, WiltshireSearcher>("wiltshire");
             container.RegisterType<IPlanningDataExtractor, WiltshireExtractor>("wiltshire");
-            container.RegisterInstance<IFileWriter>(new FileWriter(container.Resolve<ILogger>(), container.Resolve<IConfiguration>()));
+            container.RegisterType<ISiteSearcher, PooleSearcher>("poole");
+            container.RegisterType<IPlanningDataExtractor, PooleExtractor>("poole");
+            container.RegisterInstance<IFileWriter>(new FileWriter(container.Resolve<ILogger>(), container.Resolve<ISystemConfig>()));
         }
     }
 }

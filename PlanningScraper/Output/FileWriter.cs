@@ -13,10 +13,10 @@ namespace PlanningScraper.Output
         private readonly ILogger _logger;
         private readonly string _outputFileLocation;
 
-        public FileWriter(ILogger logger, IConfiguration configuration)
+        public FileWriter(ILogger logger, ISystemConfig systemConfig)
         {
             _logger = logger;
-            _outputFileLocation = $"{Environment.CurrentDirectory}\\{configuration.OutputFileName}";
+            _outputFileLocation = $"{Environment.CurrentDirectory}\\{systemConfig.OutputFileName}";
         }
 
         public async Task WriteOutputFileAsync(IEnumerable<PlanningApplication> planningApplications, CancellationToken cancellationToken)
