@@ -37,22 +37,16 @@ namespace PlanningScraper.Wiltshire
                     var baseAddress = new Uri(_configuration.BaseUri);
                     client.BaseAddress = baseAddress;
 
-                    LogSearchInputsAsync(cancellationToken);
+                    await LogSearchInputsAsync(cancellationToken);
 
-                    var request = new HttpRequestMessage();
-                    request.Build(this._configuration, HttpMethod.Get, _configuration.KeywordSearchRoute);
-                    var searchPageResponse = await client.SendAsync(request, new CancellationToken());
+                    var searchPageResponse = await client.GetAsync(_configuration.searchRoute, new CancellationToken());
 
-                    request = await BuildPostFormUrlEncodedRequestAsync(searchPageResponse, cancellationToken);
-                    client.DefaultRequestHeaders.Add("Referer",
-                        $"{_configuration.BaseUri}{_configuration.KeywordSearchRoute}");
+                    client.DefaultRequestHeaders.Add("Referer", $"{_configuration.BaseUri}{_configuration.searchRoute}");
+                    async Task<HttpRequestMessage> SearchRequestBuilder() => await BuildPostFormUrlEncodedRequestAsync(searchPageResponse, cancellationToken);
+                    var searchPostResponse = await client.PostAsync(SearchRequestBuilder, new CancellationToken());
 
-                    var searchPostResponse = await client.SendAsync(request, cancellationToken);
-                    var redirectUrl = searchPostResponse.Headers.Location.ToString()
-                        .Replace($"PS={_configuration.DefaultPageSize}", $"PS={_configuration.DesiredPageSize}");
-
-                    request = new HttpRequestMessage().Build(_configuration, HttpMethod.Get, redirectUrl);
-                    var searchResults = await client.SendAsync(request, new CancellationToken());
+                    var redirectUrl = searchPostResponse.Headers.Location.ToString().Replace($"PS={_configuration.DefaultPageSize}", $"PS={_configuration.DesiredPageSize}");
+                    var searchResults = await client.GetAsync(redirectUrl, new CancellationToken());
 
                     await _logger.LogInformationAsync($"Post search response status: {searchResults.StatusCode}", cancellationToken);
 
@@ -89,7 +83,7 @@ namespace PlanningScraper.Wiltshire
                 new KeyValuePair<string, string>("csbtnSearch", "Search")
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, _configuration.KeywordSearchRoute)
+            var request = new HttpRequestMessage(HttpMethod.Post, _configuration.searchRoute)
             {
                 Content = new FormUrlEncodedContent(keyValues)
             };
@@ -97,7 +91,7 @@ namespace PlanningScraper.Wiltshire
             return await Task.FromResult(request);
         }
 
-        private async void LogSearchInputsAsync(CancellationToken cancellationToken)
+        private async Task LogSearchInputsAsync(CancellationToken cancellationToken)
         {
             var logText =
                 $"{DateTime.Now} - Starting planning application search with search parameters: {Environment.NewLine}" +

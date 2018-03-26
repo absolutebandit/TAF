@@ -6,7 +6,7 @@ namespace PlanningScraper.Interfaces
     {
         string SearchTerm { get; set; }
         string BaseUri { get; set; }
-        string KeywordSearchRoute { get; set; }
+        string searchRoute { get; set; }
         string ApplicationPageRoute { get; set; }
         string DefaultPageSize { get; set; }
         string DesiredPageSize { get; set; }

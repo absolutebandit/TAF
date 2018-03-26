@@ -105,9 +105,7 @@ namespace PlanningScraper.Wiltshire
 
         public async Task GetPlanningApplicationDetailAsync(HttpClientWrapper client, PlanningApplication planningApplication, CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage();
-            request.Build(this._configuration, HttpMethod.Get, $"{_configuration.ApplicationPageRoute}{planningApplication.ApplicationLink}");
-            var applicationPageResponse = await client.SendAsync(request, new CancellationToken());
+            var applicationPageResponse = await client.GetAsync($"{_configuration.ApplicationPageRoute}{planningApplication.ApplicationLink}", new CancellationToken());
             var applicationHtml = applicationPageResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             var applicationPageDoc = CsQuery.CQ.Create(applicationHtml);
 
@@ -175,9 +173,7 @@ namespace PlanningScraper.Wiltshire
 
         public async Task GetPlanningApplicationDocumentLinksAsync(HttpClientWrapper client, PlanningApplication planningApplication, CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage();
-            request.Build(this._configuration, HttpMethod.Get, $"{planningApplication.DocumentsLink}");
-            var documentSearchResponse = await client.SendAsync(request, new CancellationToken());
+            var documentSearchResponse = await client.GetAsync($"{planningApplication.DocumentsLink}", new CancellationToken());
             var documentSearchHtml = await documentSearchResponse.Content.ReadAsStringAsync();
             var documentSeachDoc = CQ.Create(documentSearchHtml);
 

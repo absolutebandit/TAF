@@ -107,6 +107,7 @@
     <Compile Include="PlanningApplication.cs" />
     <Compile Include="Configuration\UnityConfiguration.cs" />
     <Compile Include="Interfaces\IWiltshireConfig.cs" />
+    <Compile Include="Utils\DateChunker.cs" />
     <Compile Include="Wiltshire\WiltshireConfig.cs" />
     <Compile Include="Wiltshire\WiltshireExtractor.cs" />
     <Compile Include="Program.cs" />

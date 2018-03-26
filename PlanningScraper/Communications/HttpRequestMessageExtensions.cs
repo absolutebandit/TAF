@@ -8,14 +8,6 @@ namespace PlanningScraper.Communications
 {
     public static class HttpRequestMessageExtensions
     {
-        public static HttpRequestMessage Build(this HttpRequestMessage request, IConfiguration config, HttpMethod method, string path)
-        {
-            request.Method = method;
-            request.RequestUri = new Uri(new Uri(config.BaseUri), path);
-
-            return request;
-        }
-
         public static HttpRequestMessage Clone(this HttpRequestMessage request)
         {
             var clone = new HttpRequestMessage(request.Method, request.RequestUri)
