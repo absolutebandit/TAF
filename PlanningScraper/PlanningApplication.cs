@@ -22,7 +22,15 @@
 
         public string NameOfApplicant { get; set; }
 
-        public string NameOfAgent { get; set; }
+        public string AgentName { get; set; }
+
+        public string AgentCompanyName { get; set; }
+
+        public string AgentAddress { get; set; }
+
+        public string AgentPhoneNumber { get; set; }
+
+        public string AgentEmail { get; set; }
 
         public string Wards { get; set; }
 

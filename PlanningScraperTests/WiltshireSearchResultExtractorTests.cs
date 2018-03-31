@@ -11,7 +11,7 @@ using PlanningScraper.Wiltshire;
 namespace PlanningScraperTests
 {
     [TestClass]
-    public class SearchResultExtractorTests
+    public class WiltshireSearchResultExtractorTests
     {
         private static CQ _searchPageResponseDoc;
         private static CQ _planningApplicationDoc;
@@ -20,18 +20,18 @@ namespace PlanningScraperTests
         [ClassInitialize]
         public static void Setup(TestContext context)
         {
-            var searchResultsHtml = File.ReadAllText("SearchResultsSample.html");
+            var searchResultsHtml = File.ReadAllText("WiltshireSamples\\SearchResultsSample.html");
             _searchPageResponseDoc = CQ.Create(searchResultsHtml);
 
-            var planningApplicationHtml = File.ReadAllText("PlanningApplicationSample.html");
+            var planningApplicationHtml = File.ReadAllText("WiltshireSamples\\PlanningApplicationSample.html");
             _planningApplicationDoc = CQ.Create(planningApplicationHtml);
 
-            var documentSearchResultsHtml = File.ReadAllText("DocumentSearchResults.html");
+            var documentSearchResultsHtml = File.ReadAllText("WiltshireSamples\\DocumentSearchResults.html");
             _documentSearchResultsDoc = CQ.Create(documentSearchResultsHtml);
         }
 
         [TestMethod]
-        public void GivenASearchResultDocument_CanExtractDetails()
+        public void GivenAWiltshireSearchResultDocument_CanExtractDetails()
         {
             // Arrange
             var planningApplications = new List<PlanningApplication>();
@@ -60,7 +60,7 @@ namespace PlanningScraperTests
         }
 
         [TestMethod]
-        public async Task GivenAnApplicationPage_CanExtractDetails()
+        public async Task GivenAWiltshireApplicationPage_CanExtractDetails()
         {
             // Arrange
             var planningApplication = new PlanningApplication();
@@ -75,7 +75,7 @@ namespace PlanningScraperTests
             Assert.IsNotNull(planningApplication.ApplicationType);
             Assert.IsNotNull(planningApplication.CurrentStatus);
             Assert.IsNotNull(planningApplication.NameOfApplicant);
-            Assert.IsNotNull(planningApplication.NameOfAgent);
+            Assert.IsNotNull(planningApplication.AgentName);
             Assert.IsNotNull(planningApplication.Wards);
             Assert.IsNotNull(planningApplication.Parishes);
             Assert.IsNotNull(planningApplication.CaseOfficer);
@@ -87,7 +87,7 @@ namespace PlanningScraperTests
             Assert.AreNotEqual(string.Empty, planningApplication.ApplicationType);
             Assert.AreNotEqual(string.Empty, planningApplication.CurrentStatus);
             Assert.AreNotEqual(string.Empty, planningApplication.NameOfApplicant);
-            Assert.AreNotEqual(string.Empty, planningApplication.NameOfAgent);
+            Assert.AreNotEqual(string.Empty, planningApplication.AgentName);
             Assert.AreNotEqual(string.Empty, planningApplication.Wards);
             Assert.AreNotEqual(string.Empty, planningApplication.Parishes);
             Assert.AreNotEqual(string.Empty, planningApplication.CaseOfficer);
@@ -95,7 +95,7 @@ namespace PlanningScraperTests
         }
 
         [TestMethod]
-        public async Task GivenDocumentSearchResults_CanExtractDocumentLinks()
+        public async Task GivenWiltshireDocumentSearchResults_CanExtractDocumentLinks()
         {
             // Arrange
             var planningApplication = new PlanningApplication();

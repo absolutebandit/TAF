@@ -25,18 +25,17 @@ namespace PlanningScraper.Wiltshire
             _logger = logger;
         }
 
-        public async Task<SearchDataAndResults> ExecuteSearchAsync(CancellationToken cancellationToken)
+        public async Task<SearchDataAndResults> ExecuteSearchAsync(string searchArea, CancellationToken cancellationToken)
         {
             try
             {
                 var searchDataAndResults = new SearchDataAndResults {CookieContainer = new CookieContainer()};
                 var handler = HttpClientHelpers.CreateHttpClientHandler(_systemConfig, _configuration, searchDataAndResults.CookieContainer);
 
-                using (var client = new HttpClientWrapper(handler, _logger, _systemConfig))
-                {
-                    var baseAddress = new Uri(_configuration.BaseUri);
-                    client.BaseAddress = baseAddress;
+                await _logger.LogInformationAsync($"Beginning searches for {searchArea.ToUpper()}...", cancellationToken);
 
+                using (var client = new HttpClientWrapper(_configuration.BaseUri, handler, _logger, _systemConfig))
+                {
                     await LogSearchInputsAsync(cancellationToken);
 
                     var searchPageResponse = await client.GetAsync(_configuration.searchRoute, new CancellationToken());

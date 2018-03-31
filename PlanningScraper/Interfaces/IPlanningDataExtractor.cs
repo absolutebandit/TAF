@@ -8,6 +8,6 @@ namespace PlanningScraper.Interfaces
 {
     public interface IPlanningDataExtractor
     {
-        Task<IEnumerable<PlanningApplication>> ExtractDataAsync(List<HttpResponseMessage> searchResultPages, CookieContainer cookieContainer, CancellationToken cancellationToken);
+        Task<IEnumerable<PlanningApplication>> ExtractDataAsync(string area, List<HttpResponseMessage> searchResultPages, CookieContainer cookieContainer, CancellationToken cancellationToken);
     }
 }

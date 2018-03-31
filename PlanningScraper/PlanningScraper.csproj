@@ -89,7 +89,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ExceptionMessages.resx</DependentUpon>
     </Compile>
-    <Compile Include="Interfaces\IPooleConfig.cs" />
+    <Compile Include="Interfaces\IIdoxConfig.cs" />
     <Compile Include="Interfaces\ISearchConfig.cs" />
     <Compile Include="Interfaces\ISystemConfig.cs" />
     <Compile Include="Output\FileWriter.cs" />
@@ -98,15 +98,17 @@
     <Compile Include="Interfaces\IFileWriter.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Output\Logger.cs" />
-    <Compile Include="Poole\PooleConfig.cs" />
-    <Compile Include="Poole\PooleExtractor.cs" />
-    <Compile Include="Poole\PooleSearcher.cs" />
+    <Compile Include="Idox\IdoxConfig.cs" />
+    <Compile Include="Idox\IdoxExtractor.cs" />
+    <Compile Include="Idox\IdoxSearcher.cs" />
     <Compile Include="SearchDataAndResults.cs" />
     <Compile Include="Interfaces\ISiteSearcher.cs" />
     <Compile Include="Interfaces\IPlanningDataExtractor.cs" />
     <Compile Include="PlanningApplication.cs" />
     <Compile Include="Configuration\UnityConfiguration.cs" />
     <Compile Include="Interfaces\IWiltshireConfig.cs" />
+    <Compile Include="Types\ExtractorType.cs" />
+    <Compile Include="Types\SearcherType.cs" />
     <Compile Include="Utils\DateChunker.cs" />
     <Compile Include="Wiltshire\WiltshireConfig.cs" />
     <Compile Include="Wiltshire\WiltshireExtractor.cs" />
@@ -130,6 +132,7 @@
     <EmbeddedResource Include="ExceptionMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ExceptionMessages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
+using PlanningScraper.Idox;
 using PlanningScraper.Interfaces;
 using PlanningScraper.Output;
-using PlanningScraper.Poole;
 using PlanningScraper.Wiltshire;
 using Unity;
+using IdoxConfig = PlanningScraper.Idox.IdoxConfig;
 
 namespace PlanningScraper.Configuration
 {
@@ -21,14 +21,14 @@ namespace PlanningScraper.Configuration
             IWiltshireConfig wiltshireConfig = (WiltshireConfig)(dynamic)ConfigurationManager.GetSection("wiltshireConfig");
             container.RegisterInstance<IWiltshireConfig>(wiltshireConfig);
 
-            IPooleConfig pooleConfig = (PooleConfig)(dynamic)ConfigurationManager.GetSection("pooleConfig");
-            container.RegisterInstance<IPooleConfig>(pooleConfig);
+            IdoxConfig idoxConfig = (IdoxConfig)(dynamic)ConfigurationManager.GetSection("idoxConfig");
+            container.RegisterInstance<IIdoxConfig>(idoxConfig);
 
             container.RegisterInstance<ILogger>(new Logger(container.Resolve<ISystemConfig>()));
             container.RegisterType<ISiteSearcher, WiltshireSearcher>("wiltshire");
             container.RegisterType<IPlanningDataExtractor, WiltshireExtractor>("wiltshire");
-            container.RegisterType<ISiteSearcher, PooleSearcher>("poole");
-            container.RegisterType<IPlanningDataExtractor, PooleExtractor>("poole");
+            container.RegisterType<ISiteSearcher, IdoxSearcher>("poole");
+            container.RegisterType<IPlanningDataExtractor, IdoxExtractor>("poole");
             container.RegisterInstance<IFileWriter>(new FileWriter(container.Resolve<ILogger>(), container.Resolve<ISystemConfig>()));
         }
     }

@@ -27,7 +27,7 @@ namespace PlanningScraper.Output
 
             sb.Append(
                 $"Application Reference,Application Type,Current Status,Proposal,Site Address,Registered Date,Consultation Expiry Date," +
-                $"Target Date,Name of Applicant,Name of Agent,Case Officer,Parishes,Wards,Documents Links{Environment.NewLine}");
+                $"Target Date,Name of Applicant,Agent Name,Agent Address,Agent Company Name,Agent Phone Number,Agent Email,Case Officer,Parishes,Wards{Environment.NewLine}");
 
             foreach (var application in planningApplications)
             {
@@ -40,11 +40,14 @@ namespace PlanningScraper.Output
                           $"{application.ConsultationExpiryDate}," +
                           $"{application.TargetDate}," +
                           $"{application.NameOfApplicant}," +
-                          $"{application.NameOfAgent}," +
+                          $"{application.AgentName}," +
+                          $"{application.AgentAddress}," +
+                          $"{application.AgentCompanyName}," +
+                          $"{application.AgentPhoneNumber}," +
+                          $"{application.AgentEmail}," +
                           $"{application.CaseOfficer}," +
                           $"{application.Parishes}," +
                           $"{application.Wards}," +
-                          $"{application.AllDocumentLinks}" +
                           $"{Environment.NewLine}");
             }
 

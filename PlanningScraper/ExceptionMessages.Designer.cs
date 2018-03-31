@@ -61,7 +61,7 @@ namespace PlanningScraper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ooops, that&apos;s not good, something went wrong with the data extract!{0}ExceptionDetail: {1}.
+        ///   Looks up a localized string similar to Something went wrong with the data extract! ExceptionDetail:.
         /// </summary>
         internal static string DataExtractFailedMessage {
             get {
@@ -70,7 +70,7 @@ namespace PlanningScraper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ooops, that&apos;s not good, something went very wrong!{0}ExceptionDetail: {1}.
+        ///   Looks up a localized string similar to Something went very wrong! ExceptionDetail:.
         /// </summary>
         internal static string GeneralFailureMessage {
             get {
@@ -79,7 +79,7 @@ namespace PlanningScraper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ooops, that&apos;s not good, something went wrong with the search!{0}ExceptionDetail: {1}.
+        ///   Looks up a localized string similar to Something went wrong with the search! ExceptionDetail:.
         /// </summary>
         internal static string SearchFailedMessage {
             get {

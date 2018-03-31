@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -9,16 +10,16 @@ using PlanningScraper.Exceptions;
 using PlanningScraper.Interfaces;
 using PlanningScraper.Utils;
 
-namespace PlanningScraper.Poole
+namespace PlanningScraper.Idox
 {
-    public class PooleSearcher : ISiteSearcher
+    public class IdoxSearcher : ISiteSearcher
     {
         private readonly ISystemConfig _systemConfig;
         private readonly ISearchConfig _searchConfig;
-        private readonly IPooleConfig _configuration;
+        private readonly IIdoxConfig _configuration;
         private readonly ILogger _logger;
 
-        public PooleSearcher(ISystemConfig systemConfig, ISearchConfig searchConfig, IPooleConfig configuration, ILogger logger)
+        public IdoxSearcher(ISystemConfig systemConfig, ISearchConfig searchConfig, IIdoxConfig configuration, ILogger logger)
         {
             _systemConfig = systemConfig;
             _searchConfig = searchConfig;
@@ -26,20 +27,18 @@ namespace PlanningScraper.Poole
             _logger = logger;
         }
 
-        public async Task<SearchDataAndResults> ExecuteSearchAsync(CancellationToken cancellationToken)
+        public async Task<SearchDataAndResults> ExecuteSearchAsync(string searchArea, CancellationToken cancellationToken)
         {
             try
             {
                 var searchDataAndResults = new SearchDataAndResults {CookieContainer = new CookieContainer()};
                 var handler = HttpClientHelpers.CreateHttpClientHandler(_systemConfig, _configuration, searchDataAndResults.CookieContainer);
 
-                using (var client = new HttpClientWrapper(handler, _logger, _systemConfig))
+                await _logger.LogInformationAsync($"Beginning searches for {searchArea.ToUpper()}...", cancellationToken);
+
+                using (var client = new HttpClientWrapper(_configuration.BaseUri, handler, _logger, _systemConfig))
                 {
-                    var baseAddress = new Uri(_configuration.BaseUri);
-                    client.BaseAddress = baseAddress;
-
                     await LogSearchInputsAsync(cancellationToken);
-
                     await client.GetAsync(_configuration.searchRoute, new CancellationToken());
 
                     var searchDates = await DateChunker.SplitDateRange(_searchConfig.StartDate, _searchConfig.EndDate, _configuration.ChunkSizeDays);
@@ -58,7 +57,6 @@ namespace PlanningScraper.Poole
 
                         async Task<HttpRequestMessage> PagedRequestBuilder() => await BuildPagedSearchResultsRequestAsync();
                         var searchResults = await client.PostAsync(PagedRequestBuilder, new CancellationToken());
-
                         await _logger.LogInformationAsync($"Post search response status: {searchResults.StatusCode}", cancellationToken);
                         searchDataAndResults.SearchResultsPages.Add(searchResults);
                     }

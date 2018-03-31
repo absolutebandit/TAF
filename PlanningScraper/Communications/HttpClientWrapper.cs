@@ -14,10 +14,11 @@ namespace PlanningScraper.Communications
         private readonly ILogger _logger;
         private readonly ISystemConfig _systemConfig;
 
-        public HttpClientWrapper(HttpMessageHandler handler, ILogger logger, ISystemConfig systemConfig) : base(handler, false)
+        public HttpClientWrapper(string baseAddress, HttpMessageHandler handler, ILogger logger, ISystemConfig systemConfig) : base(handler, false)
         {
             _logger = logger;
             _systemConfig = systemConfig;
+            this.BaseAddress = new Uri(baseAddress);
         }
 
         public async Task<HttpResponseMessage> PostAsync(Func<Task<HttpRequestMessage>> requestBuilder, CancellationToken cancellationToken)

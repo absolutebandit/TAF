@@ -27,20 +27,18 @@ namespace PlanningScraper.Wiltshire
             _logger = logger;
         }
 
-        public async Task<IEnumerable<PlanningApplication>> ExtractDataAsync(List<HttpResponseMessage> searchResultPages, CookieContainer cookieContainer, CancellationToken cancellationToken)
+        public async Task<IEnumerable<PlanningApplication>> ExtractDataAsync(string searchArea, List<HttpResponseMessage> searchResultPages, CookieContainer cookieContainer, CancellationToken cancellationToken)
         {
             try
             {
                 var searchResults = searchResultPages.First();
-                var client = HttpClientHelpers.CreateClient(_systemConfig, _configuration, _logger, cookieContainer);
-                var baseAddress = new Uri(_configuration.BaseUri);
-                client.BaseAddress = baseAddress;
+                var client = HttpClientHelpers.CreateClient(_configuration.BaseUri, _systemConfig, _configuration, _logger, cookieContainer);
                 client.DefaultRequestHeaders.Add("Referer", $"{searchResults.RequestMessage.RequestUri}");
 
-                var searchResultsHtml = searchResults.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var searchResultsHtml = await searchResults.Content.ReadAsStringAsync();
                 var searchPageResponseDoc = CQ.Create(searchResultsHtml);
                     
-                await _logger.LogInformationAsync($"Found {searchPageResponseDoc.Select("table tbody tr").Length} planning applications...", cancellationToken);
+                await _logger.LogInformationAsync($"Found {searchPageResponseDoc.Select("table tbody tr").Length} planning applications for {searchArea.ToUpper()}...", cancellationToken);
 
                 var row = 1;
                 searchPageResponseDoc.Select("table tbody tr").Each(tr =>
@@ -53,20 +51,25 @@ namespace PlanningScraper.Wiltshire
 
                     GetPlanningApplicationDetailAsync(client, planningApplication, cancellationToken).GetAwaiter().GetResult();
 
-                    GetPlanningApplicationDocumentLinksAsync(client, planningApplication, cancellationToken).GetAwaiter().GetResult();
+                    // can cause too much data and not really required.
+                    //GetPlanningApplicationDocumentLinksAsync(client, planningApplication, cancellationToken).GetAwaiter().GetResult();
 
                     _planningApplications.Add(planningApplication);
 
-                    // refresh client/handler to get a new IP address
-                    client = HttpClientHelpers.CreateClient(_systemConfig, _configuration, _logger, cookieContainer);
+                    if (_configuration.UseProxy)
+                    {
+                        // refresh client/handler to get a new IP address
+                        client = HttpClientHelpers.CreateClient(_configuration.BaseUri, _systemConfig, _configuration, _logger, cookieContainer);
+                    }
+
                     row++;
                 });
 
-                await _logger.LogInformationAsync($"Finished extracting planning data...", cancellationToken);
+                await _logger.LogInformationAsync($"Finished extracting planning data for {searchArea.ToUpper()}...", cancellationToken);
 
                 client.Dispose();
 
-                return await Task.FromResult(_planningApplications);
+                return _planningApplications;
             }
             catch (Exception ex)
             {
@@ -149,7 +152,7 @@ namespace PlanningScraper.Wiltshire
                         break;
 
                     case "Name of agent":
-                        planningApplication.NameOfAgent = dt.NextElementSibling.InnerText.Clean();
+                        planningApplication.AgentName = dt.NextElementSibling.InnerText.Clean();
                         break;
 
                     case "Wards":

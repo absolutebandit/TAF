@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 using PlanningScraper.Configuration;
 using PlanningScraper.Exceptions;
 using PlanningScraper.Interfaces;
+using PlanningScraper.Types;
 using Unity;
 
 namespace PlanningScraper
 {
     class Program
     {
-        private readonly List<ISiteSearcher> _searchers = new List<ISiteSearcher>();
-        private readonly List<IPlanningDataExtractor> _extractors = new List<IPlanningDataExtractor>();
+        private readonly List<SearcherType> _searchers = new List<SearcherType>();
+        private readonly List<ExtractorType> _extractors = new List<ExtractorType>();
         private readonly List<PlanningApplication> _planningApplications = new List<PlanningApplication>();
         private readonly IUnityContainer _container = new UnityContainer();
         private ILogger _logger;
@@ -36,8 +37,8 @@ namespace PlanningScraper
                 {
                     for (var i = 0; i < _searchers.Count; i++)
                     {
-                        var searchDataAndResults = await _searchers[i].ExecuteSearchAsync(_cancellationToken);
-                        var planningApplications = await _extractors[i].ExtractDataAsync(searchDataAndResults.SearchResultsPages, searchDataAndResults.CookieContainer, _cancellationToken);
+                        var searchDataAndResults = await _searchers[i].Searcher.ExecuteSearchAsync(_searchers[i].SearchArea,  _cancellationToken);
+                        var planningApplications = await _extractors[i].Extractor.ExtractDataAsync(_extractors[i].SearchArea, searchDataAndResults.SearchResultsPages, searchDataAndResults.CookieContainer, _cancellationToken);
                         _planningApplications.AddRange(planningApplications);
                     }
                     
@@ -71,6 +72,13 @@ namespace PlanningScraper
                 return false;
             }
 
+            if (!await CreateSearchersAndExtractors(areas, cancellationToken)) return false;
+
+            return true;
+        }
+
+        private async Task<bool> CreateSearchersAndExtractors(string[] areas, CancellationToken cancellationToken)
+        {
             foreach (var area in areas)
             {
                 var allSites = _container.Resolve<ISystemConfig>().SupportedAreas.ToLower().Split(',').ToList();
@@ -83,20 +91,30 @@ namespace PlanningScraper
 
                 if (area.Trim().ToLower() == "all")
                 {
-
                     foreach (var ar in allSites)
                     {
-                        _searchers.Add(_container.Resolve<ISiteSearcher>(ar.Trim().ToLower()));
-                        _extractors.Add(_container.Resolve<IPlanningDataExtractor>(ar.Trim().ToLower()));
+                        CreateSearcher(ar);
+                        CreateExtractor(ar);
                     }
                 }
 
-
-                _searchers.Add(_container.Resolve<ISiteSearcher>(area.Trim().ToLower()));
-                _extractors.Add(_container.Resolve<IPlanningDataExtractor>(area.Trim().ToLower()));
+                CreateSearcher(area.Trim().ToLower());
+                CreateExtractor(area.Trim().ToLower());
             }
 
             return true;
+        }
+
+        private void CreateExtractor(string area)
+        {
+            var extractor = new ExtractorType(area, _container.Resolve<IPlanningDataExtractor>(area.Trim().ToLower()));
+            _extractors.Add(extractor);
+        }
+
+        private void CreateSearcher(string area)
+        {
+            var searcher = new SearcherType(area, _container.Resolve<ISiteSearcher>(area.Trim().ToLower()));
+            _searchers.Add(searcher);
         }
     }
 }

@@ -118,12 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DataExtractFailedMessage" xml:space="preserve">
-    <value>Ooops, that's not good, something went wrong with the data extract!{0}ExceptionDetail: {1}</value>
+    <value>Something went wrong with the data extract! ExceptionDetail:</value>
   </data>
   <data name="GeneralFailureMessage" xml:space="preserve">
-    <value>Ooops, that's not good, something went very wrong!{0}ExceptionDetail: {1}</value>
+    <value>Something went very wrong! ExceptionDetail:</value>
   </data>
   <data name="SearchFailedMessage" xml:space="preserve">
-    <value>Ooops, that's not good, something went wrong with the search!{0}ExceptionDetail: {1}</value>
+    <value>Something went wrong with the search! ExceptionDetail:</value>
   </data>
 </root>

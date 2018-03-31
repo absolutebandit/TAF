@@ -51,7 +51,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SearchResultExtractorTests.cs" />
+    <Compile Include="IdoxSearchResultExtractorTests.cs" />
+    <Compile Include="WiltshireSearchResultExtractorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilUnitTests.cs" />
   </ItemGroup>
@@ -59,13 +60,25 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DocumentSearchResults.html">
+    <Content Include="IdoxSamples\IdoxApplicationContactsSample.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="PlanningApplicationSample.html">
+    <Content Include="IdoxSamples\IdoxApplicationDetailsSample.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SearchResultsSample.html">
+    <Content Include="IdoxSamples\IdoxApplicationSummarySample.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IdoxSamples\IdoxSearchResultsPage.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WiltshireSamples\DocumentSearchResults.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WiltshireSamples\PlanningApplicationSample.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WiltshireSamples\SearchResultsSample.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

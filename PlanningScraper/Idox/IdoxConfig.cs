@@ -1,8 +1,8 @@
 ﻿using PlanningScraper.Interfaces;
 
-namespace PlanningScraper.Poole
+namespace PlanningScraper.Idox
 {
-    public class PooleConfig : Configuration.Configuration, IPooleConfig
+    public class IdoxConfig : Configuration.Configuration, IIdoxConfig
     {
         public string AdvancedSearchRoute { get; set; }
         public string PagedSearchResultsRoute { get; set; }
