@@ -4,11 +4,11 @@
     {
         public static string Clean(this string stringToClean)
         {
-            return stringToClean.Replace(",",";")
-                                .Replace("\t", " ")
-                                .Replace("\r\n", " ")
-                                .Replace("\n", " ")
-                                .Trim();
+            return stringToClean?.Replace(",", ";")
+                .Replace("\t", " ")
+                .Replace("\r\n", " ")
+                .Replace("\n", " ")
+                .Trim();
         }
 
         public static string CleanApplicationUrl(this string urlToClean)

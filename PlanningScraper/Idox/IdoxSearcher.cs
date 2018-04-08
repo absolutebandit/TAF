@@ -39,7 +39,7 @@ namespace PlanningScraper.Idox
                 using (var client = new HttpClientWrapper(_configuration.BaseUri, handler, _logger, _systemConfig))
                 {
                     await LogSearchInputsAsync(cancellationToken);
-                    await client.GetAsync(_configuration.searchRoute, new CancellationToken());
+                    await client.GetAsync(_configuration.SearchRoute, new CancellationToken());
 
                     var searchDates = await DateChunker.SplitDateRange(_searchConfig.StartDate, _searchConfig.EndDate, _configuration.ChunkSizeDays);
                     searchDataAndResults.SearchResultsPages = new List<HttpResponseMessage>();
@@ -47,7 +47,7 @@ namespace PlanningScraper.Idox
                     foreach (KeyValuePair<string, string> range in searchDates)
                     {
                         client.DefaultRequestHeaders.Remove("Referer");
-                        client.DefaultRequestHeaders.Add("Referer", $"{_configuration.BaseUri}{_configuration.searchRoute}");
+                        client.DefaultRequestHeaders.Add("Referer", $"{_configuration.BaseUri}{_configuration.SearchRoute}");
 
                         async Task<HttpRequestMessage> PostRequestBuilder() => await BuildPostFormUrlEncodedRequestAsync(range);
                         await client.PostAsync(PostRequestBuilder, cancellationToken);

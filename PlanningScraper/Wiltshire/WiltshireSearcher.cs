@@ -38,9 +38,9 @@ namespace PlanningScraper.Wiltshire
                 {
                     await LogSearchInputsAsync(cancellationToken);
 
-                    var searchPageResponse = await client.GetAsync(_configuration.searchRoute, new CancellationToken());
+                    var searchPageResponse = await client.GetAsync(_configuration.SearchRoute, new CancellationToken());
 
-                    client.DefaultRequestHeaders.Add("Referer", $"{_configuration.BaseUri}{_configuration.searchRoute}");
+                    client.DefaultRequestHeaders.Add("Referer", $"{_configuration.BaseUri}{_configuration.SearchRoute}");
                     async Task<HttpRequestMessage> SearchRequestBuilder() => await BuildPostFormUrlEncodedRequestAsync(searchPageResponse, cancellationToken);
                     var searchPostResponse = await client.PostAsync(SearchRequestBuilder, new CancellationToken());
 
@@ -82,7 +82,7 @@ namespace PlanningScraper.Wiltshire
                 new KeyValuePair<string, string>("csbtnSearch", "Search")
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, _configuration.searchRoute)
+            var request = new HttpRequestMessage(HttpMethod.Post, _configuration.SearchRoute)
             {
                 Content = new FormUrlEncodedContent(keyValues)
             };

@@ -92,6 +92,7 @@
     <Compile Include="Interfaces\IIdoxConfig.cs" />
     <Compile Include="Interfaces\ISearchConfig.cs" />
     <Compile Include="Interfaces\ISystemConfig.cs" />
+    <Compile Include="Interfaces\IBournemouthConfig.cs" />
     <Compile Include="Output\FileWriter.cs" />
     <Compile Include="Communications\HttpClientHelpers.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
@@ -110,6 +111,9 @@
     <Compile Include="Types\ExtractorType.cs" />
     <Compile Include="Types\SearcherType.cs" />
     <Compile Include="Utils\DateChunker.cs" />
+    <Compile Include="Bournemouth\BournemouthConfig.cs" />
+    <Compile Include="Bournemouth\BournemouthExtractor.cs" />
+    <Compile Include="Bournemouth\BournemouthSearcher.cs" />
     <Compile Include="Wiltshire\WiltshireConfig.cs" />
     <Compile Include="Wiltshire\WiltshireExtractor.cs" />
     <Compile Include="Program.cs" />

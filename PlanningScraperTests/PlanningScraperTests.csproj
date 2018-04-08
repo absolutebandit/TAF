@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IdoxSearchResultExtractorTests.cs" />
+    <Compile Include="BournemouthSearchResultExtractorTests.cs" />
     <Compile Include="WiltshireSearchResultExtractorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilUnitTests.cs" />
@@ -60,6 +61,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="BournemouthSamples\BournemouthMainDetailsPage.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BournemouthSamples\BournemouthSearchResultsPage.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="IdoxSamples\IdoxApplicationContactsSample.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

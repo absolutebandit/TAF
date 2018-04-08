@@ -21,10 +21,10 @@ namespace PlanningScraper.Communications
                 UseCookies = true,
                 CookieContainer = cookieContainer,
                 AllowAutoRedirect = false,
-                UseProxy = configuration.UseProxy
+                UseProxy = true
             };
 
-            if (handler.UseProxy)
+            if (configuration.UseProxy)
             {
                 handler.Proxy = new WebProxy(systemConfig);
             }
