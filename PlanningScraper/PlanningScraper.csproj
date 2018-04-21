@@ -79,7 +79,9 @@
     <Compile Include="Communications\HttpClientWrapper.cs" />
     <Compile Include="Communications\HttpRequestMessageExtensions.cs" />
     <Compile Include="Communications\WebProxy.cs" />
+    <Compile Include="Configuration\NamedInstanceResolver.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\INamedInstanceResolver.cs" />
     <Compile Include="Configuration\TimeSpanBindingAttribute.cs" />
     <Compile Include="Configuration\TimeSpanBindingStrategy.cs" />
     <Compile Include="Configuration\SystemConfig.cs" />
@@ -89,6 +91,30 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ExceptionMessages.resx</DependentUpon>
     </Compile>
+    <Compile Include="Idox\GosportIdoxConfig.cs" />
+    <Compile Include="Idox\EastHantsIdoxConfig.cs" />
+    <Compile Include="Idox\BasingstokeIdoxConfig.cs" />
+    <Compile Include="Idox\TestValleyIdoxConfig.cs" />
+    <Compile Include="Idox\BristolIdoxConfig.cs" />
+    <Compile Include="Idox\CheltenhamIdoxConfig.cs" />
+    <Compile Include="Idox\CornwallIdoxConfig.cs" />
+    <Compile Include="Idox\cotswoldIdoxConfig.cs" />
+    <Compile Include="Idox\EastDevonIdoxConfig.cs" />
+    <Compile Include="Idox\GloucestershireIdoxConfig.cs" />
+    <Compile Include="Idox\MidDevonIdoxConfig.cs" />
+    <Compile Include="Idox\TewkesburyIdoxConfig.cs" />
+    <Compile Include="Idox\TorbayIdoxConfig.cs" />
+    <Compile Include="Idox\WestSomersetIdoxConfig.cs" />
+    <Compile Include="Idox\BuckinghamshireIdoxConfig.cs" />
+    <Compile Include="Idox\MendipIdoxConfig.cs" />
+    <Compile Include="Idox\WestBerkshireIdoxConfig.cs" />
+    <Compile Include="Idox\SouthGloucestershireConfig.cs" />
+    <Compile Include="Idox\WinchesterIdoxConfig.cs" />
+    <Compile Include="Idox\SwindonIdoxConfig.cs" />
+    <Compile Include="Idox\SouthamptonIdoxConfig.cs" />
+    <Compile Include="Idox\PortsmouthIdoxConfig.cs" />
+    <Compile Include="Idox\NewForestIdoxConfig.cs" />
+    <Compile Include="Idox\PooleIdoxConfig.cs" />
     <Compile Include="Interfaces\IIdoxConfig.cs" />
     <Compile Include="Interfaces\ISearchConfig.cs" />
     <Compile Include="Interfaces\ISystemConfig.cs" />

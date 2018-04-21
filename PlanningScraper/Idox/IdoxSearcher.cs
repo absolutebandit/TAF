@@ -5,7 +5,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using CsQuery;
 using PlanningScraper.Communications;
+using PlanningScraper.Configuration;
 using PlanningScraper.Exceptions;
 using PlanningScraper.Interfaces;
 using PlanningScraper.Utils;
@@ -16,14 +18,15 @@ namespace PlanningScraper.Idox
     {
         private readonly ISystemConfig _systemConfig;
         private readonly ISearchConfig _searchConfig;
-        private readonly IIdoxConfig _configuration;
         private readonly ILogger _logger;
+        private readonly INamedInstanceResolver<IIdoxConfig> _configResolver;
+        private IIdoxConfig _configuration;
 
-        public IdoxSearcher(ISystemConfig systemConfig, ISearchConfig searchConfig, IIdoxConfig configuration, ILogger logger)
+        public IdoxSearcher(INamedInstanceResolver<IIdoxConfig> configResolver, ISystemConfig systemConfig, ISearchConfig searchConfig, ILogger logger)
         {
             _systemConfig = systemConfig;
             _searchConfig = searchConfig;
-            _configuration = configuration;
+            _configResolver = configResolver;
             _logger = logger;
         }
 
@@ -31,6 +34,8 @@ namespace PlanningScraper.Idox
         {
             try
             {
+                _configuration = _configResolver.ResolveConfig(searchArea);
+
                 var searchDataAndResults = new SearchDataAndResults {CookieContainer = new CookieContainer()};
                 var handler = HttpClientHelpers.CreateHttpClientHandler(_systemConfig, _configuration, searchDataAndResults.CookieContainer);
 
@@ -39,6 +44,7 @@ namespace PlanningScraper.Idox
                 using (var client = new HttpClientWrapper(_configuration.BaseUri, handler, _logger, _systemConfig))
                 {
                     await LogSearchInputsAsync(cancellationToken);
+
                     await client.GetAsync(_configuration.SearchRoute, new CancellationToken());
 
                     var searchDates = await DateChunker.SplitDateRange(_searchConfig.StartDate, _searchConfig.EndDate, _configuration.ChunkSizeDays);
@@ -50,7 +56,12 @@ namespace PlanningScraper.Idox
                         client.DefaultRequestHeaders.Add("Referer", $"{_configuration.BaseUri}{_configuration.SearchRoute}");
 
                         async Task<HttpRequestMessage> PostRequestBuilder() => await BuildPostFormUrlEncodedRequestAsync(range);
-                        await client.PostAsync(PostRequestBuilder, cancellationToken);
+                        var initialSearchResponse = await client.PostAsync(PostRequestBuilder, cancellationToken);
+
+                        if (!await SearchResultsExist(initialSearchResponse))
+                        {
+                            continue;
+                        }
 
                         client.DefaultRequestHeaders.Remove("Referer");
                         client.DefaultRequestHeaders.Add("Referer", $"{_configuration.BaseUri}{_configuration.AdvancedSearchRoute}");
@@ -126,6 +137,14 @@ namespace PlanningScraper.Idox
             };
 
             return await Task.FromResult(request);
+        }
+
+        private async Task<bool> SearchResultsExist(HttpResponseMessage initialSearchResponse)
+        {
+            var initialSearchResponseHtml = await initialSearchResponse.Content.ReadAsStringAsync();
+            var initialSearchPageResponseDoc = CQ.Create(initialSearchResponseHtml);
+            var searchResultList = initialSearchPageResponseDoc.Select("#searchresults");
+            return searchResultList.Length != 0;
         }
 
         private async Task LogSearchInputsAsync(CancellationToken cancellationToken)

@@ -50,7 +50,7 @@ namespace PlanningScraperTests
 
             _applicationSummaryResponseDoc.Select("#simpleDetailsTable tr").Each(row =>
             {
-                if (row.ChildNodes[1].InnerText.Contains("Reference"))
+                if (row.ChildNodes[1].InnerText.Contains("Reference") && !row.ChildNodes[1].InnerText.Contains("Alternative Reference"))
                 {
                     planningApplication.ApplicationReference = row.ChildNodes[3].InnerText.Clean();
                 }
@@ -70,11 +70,21 @@ namespace PlanningScraperTests
                     planningApplication.Proposal = row.ChildNodes[3].InnerText.Clean();
                 }
 
-                if (row.ChildNodes[1].InnerText.Contains("Status"))
+                if (row.ChildNodes[1].InnerText.Contains("Status") && !row.ChildNodes[1].InnerText.Contains("Appeal Status"))
                 {
                     planningApplication.CurrentStatus = row.ChildNodes[3].InnerText.Clean();
                 }
             });
+
+            if (string.IsNullOrEmpty(planningApplication.Proposal))
+            {
+                planningApplication.Proposal = _applicationSummaryResponseDoc.Select(".description").Text().Clean();
+            }
+
+            if (string.IsNullOrEmpty(planningApplication.SiteAddress))
+            {
+                planningApplication.SiteAddress = _applicationSummaryResponseDoc.Select(".address").Text().Clean();
+            }
 
             Assert.IsNotNull(planningApplication.ApplicationReference);
             Assert.IsFalse(string.IsNullOrEmpty(planningApplication.ApplicationReference));
@@ -168,9 +178,16 @@ namespace PlanningScraperTests
 
             _applicationContactsResponseDoc.Select(".agents tr").Each(row =>
             {
-                if (row.ChildNodes[1].InnerText.Contains("Personal Email"))
+                if ((string.IsNullOrEmpty(planningApplication.AgentEmail) || planningApplication.AgentEmail == "Not Available") &&
+                    row.ChildNodes[1].InnerText.ToLower().Contains("email"))
                 {
                     planningApplication.AgentEmail = row.ChildNodes[3].InnerText.Clean();
+                }
+
+                if ((string.IsNullOrEmpty(planningApplication.AgentPhoneNumber) || planningApplication.AgentEmail == "Not Available") &&
+                    row.ChildNodes[1].InnerText.ToLower().Contains("phone"))
+                {
+                    planningApplication.AgentPhoneNumber = row.ChildNodes[3].InnerText.Clean();
                 }
             });
 

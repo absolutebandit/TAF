@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CsQuery;
 using PlanningScraper.Communications;
+using PlanningScraper.Configuration;
 using PlanningScraper.Exceptions;
 using PlanningScraper.Extensions;
 using PlanningScraper.Interfaces;
@@ -15,13 +16,14 @@ namespace PlanningScraper.Idox
     public class IdoxExtractor : IPlanningDataExtractor
     {
         private readonly List<PlanningApplication> _planningApplications = new List<PlanningApplication>();
-        private readonly IIdoxConfig _configuration;
         private readonly ISystemConfig _systemConfig;
         private readonly ILogger _logger;
+        private readonly INamedInstanceResolver<IIdoxConfig> _configResolver;
+        private IIdoxConfig _configuration;
 
-        public IdoxExtractor(ISystemConfig systemConfig, IIdoxConfig configuration, ILogger logger)
+        public IdoxExtractor(INamedInstanceResolver<IIdoxConfig> configResolver, ISystemConfig systemConfig, ILogger logger)
         {
-            _configuration = configuration;
+            _configResolver = configResolver;
             _systemConfig = systemConfig;
             _logger = logger;
         }
@@ -30,6 +32,8 @@ namespace PlanningScraper.Idox
         {
             try
             {
+                _configuration = _configResolver.ResolveConfig(searchArea);
+
                 var currentPage = 0;
 
                 await _logger.LogInformationAsync($"Processing {searchResultPages.Count} search result pages for {searchArea.ToUpper()}", cancellationToken);
@@ -41,17 +45,15 @@ namespace PlanningScraper.Idox
                     currentPage++;
                     var searchResultsHtml = await searchResults.Content.ReadAsStringAsync();
                     var searchPageResponseDoc = CQ.Create(searchResultsHtml);
+                    var appSummaryPaths = GetAppSummaryPaths(searchPageResponseDoc);
 
-                    var applicationPathLinks = searchPageResponseDoc.Select(".searchresult a");
-
-                    await _logger.LogInformationAsync($"Found {applicationPathLinks.Length} planning applications in page {currentPage}...", cancellationToken);
+                    await _logger.LogInformationAsync($"Found {appSummaryPaths.Count} planning applications in page {currentPage}...", cancellationToken);
 
                     var row = 0;
-                    foreach (IDomObject appPathLink in applicationPathLinks)
+                    foreach (var appSummaryPath in appSummaryPaths)
                     {
                         row++;
                         var planningApplication = new PlanningApplication();
-                        var appSummaryPath = appPathLink.Attributes["href"];
                         await _logger.LogInformationAsync($"Getting application detail for result number {row} application {appSummaryPath}", cancellationToken);
 
                         await ExtractApplicationSummary(cancellationToken, appSummaryPath, client, planningApplication);
@@ -82,6 +84,29 @@ namespace PlanningScraper.Idox
             }
         }
 
+        private static List<string> GetAppSummaryPaths(CQ searchPageResponseDoc)
+        {
+            var appSummaryPaths = new List<string>();
+
+            // if there is only 1 search result the page will be the actual summary page and not a list of search results so
+            // just get the url of it and add it to the list to be hit again by the extractor.
+            var summaryTab = searchPageResponseDoc.Select("#tab_summary");
+            if (summaryTab.Length > 0)
+            {
+                appSummaryPaths.Add(summaryTab.Attr("href"));
+            }
+            else
+            {
+                var applicationPathLinks = searchPageResponseDoc.Select(".searchresult a");
+                foreach (IDomObject appPathLink in applicationPathLinks)
+                {
+                    appSummaryPaths.Add(appPathLink.Attributes["href"]);
+                }
+            }
+
+            return appSummaryPaths;
+        }
+
         private static async Task ExtractApplicationContact(CancellationToken cancellationToken, string appDetailsPath,
             HttpClientWrapper client, PlanningApplication planningApplication)
         {
@@ -91,9 +116,16 @@ namespace PlanningScraper.Idox
 
             applicationContactsResponseDoc.Select(".agents tr").Each(row =>
             {
-                if (row.ChildNodes[1].InnerText.Contains("Personal Email"))
+                if ((string.IsNullOrEmpty(planningApplication.AgentEmail) || planningApplication.AgentEmail == "Not Available") &&
+                    row.ChildNodes[1].InnerText.ToLower().Contains("email"))
                 {
                     planningApplication.AgentEmail = row.ChildNodes[3].InnerText.Clean();
+                }
+
+                if ((string.IsNullOrEmpty(planningApplication.AgentPhoneNumber) || planningApplication.AgentEmail == "Not Available") && 
+                    row.ChildNodes[1].InnerText.ToLower().Contains("phone"))
+                {
+                    planningApplication.AgentPhoneNumber = row.ChildNodes[3].InnerText.Clean();
                 }
             });
         }
@@ -151,6 +183,11 @@ namespace PlanningScraper.Idox
                 {
                     planningApplication.AgentPhoneNumber = row.ChildNodes[3].InnerText.Clean();
                 }
+
+                if (row.ChildNodes[1].InnerText.Contains("Agent Email"))
+                {
+                    planningApplication.AgentEmail = row.ChildNodes[3].InnerText.Clean();
+                }
             });
             return appDetailsPath;
         }
@@ -163,7 +200,7 @@ namespace PlanningScraper.Idox
 
             applicationSummaryResponseDoc.Select("#simpleDetailsTable tr").Each(row =>
             {
-                if (row.ChildNodes[1].InnerText.Contains("Reference"))
+                if (row.ChildNodes[1].InnerText.Contains("Reference") && !row.ChildNodes[1].InnerText.Contains("Alternative Reference"))
                 {
                     planningApplication.ApplicationReference = row.ChildNodes[3].InnerText.Clean();
                 }
@@ -183,11 +220,21 @@ namespace PlanningScraper.Idox
                     planningApplication.Proposal = row.ChildNodes[3].InnerText.Clean();
                 }
 
-                if (row.ChildNodes[1].InnerText.Contains("Status"))
+                if (row.ChildNodes[1].InnerText.Contains("Status") && !row.ChildNodes[1].InnerText.Contains("Appeal Status"))
                 {
                     planningApplication.CurrentStatus = row.ChildNodes[3].InnerText.Clean();
                 }
             });
+
+            if (string.IsNullOrEmpty(planningApplication.Proposal))
+            {
+                planningApplication.Proposal = applicationSummaryResponseDoc.Select(".description").Text().Clean();
+            }
+
+            if (string.IsNullOrEmpty(planningApplication.SiteAddress))
+            {
+                planningApplication.SiteAddress = applicationSummaryResponseDoc.Select(".address").Text().Clean();
+            }
         }
     }
 }

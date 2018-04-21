@@ -22,18 +22,43 @@ namespace PlanningScraper
         private IFileWriter _fileWriter;
         private CancellationToken _cancellationToken;
 
+
         static void Main(string[] args)
         {
-            var areas = args;
+            var areaList = FormatAreaList(args);
             var program = new Program();
-            program.Run(areas).GetAwaiter().GetResult();
+            program.Run(areaList).GetAwaiter().GetResult();
         }
 
-        private async Task Run(string[] areas)
+        private static List<string> FormatAreaList(string[] args)
+        {
+            var systemConfig = (SystemConfig)(dynamic)ConfigurationManager.GetSection("systemConfig");
+
+            var areaList = new List<string>();
+            foreach (var area in args)
+            {
+                areaList.Add(area.Trim().ToLower());
+            }
+
+            if (areaList.Contains("all"))
+            {
+                var allAreas = systemConfig.SupportedAreas.ToLower().Split(',').ToList();
+                areaList = new List<string>();
+
+                foreach (var area in allAreas)
+                {
+                    areaList.Add(area.Trim());    
+                }
+            }
+
+            return areaList;
+        }
+
+        private async Task Run(List<string> areaList)
         {
             try
             {
-                if (await Initialise(areas, _cancellationToken))
+                if (await Initialise(areaList, _cancellationToken))
                 {
                     for (var i = 0; i < _searchers.Count; i++)
                     {
@@ -59,47 +84,64 @@ namespace PlanningScraper
             }
         }
 
-        private async Task<bool> Initialise(string[] areas, CancellationToken cancellationToken)
+        private async Task<bool> Initialise(List<string> areaList, CancellationToken cancellationToken)
         {
             _cancellationToken = new CancellationToken();
-            UnityConfiguration.RegisterComponents(_container, areas);
+            UnityConfiguration.RegisterComponents(_container, areaList);
             _logger = _container.Resolve<ILogger>();
             _fileWriter = _container.Resolve<IFileWriter>();
 
-            if (areas == null || areas.Length == 0)
+            if (!await ValidateInputs(areaList, cancellationToken)) return false;
+
+            if (!await CreateSearchersAndExtractors(areaList, cancellationToken)) return false;
+
+            return true;
+        }
+        
+        private async Task<bool> ValidateInputs(List<string> areaList, CancellationToken cancellationToken)
+        {
+            var searchConfig = _container.Resolve<ISearchConfig>();
+            var startDate = DateTime.ParseExact(searchConfig.StartDate, "dd-MM-yyyy", null);
+            var endDate = DateTime.ParseExact(searchConfig.EndDate, "dd-MM-yyyy", null);
+            var today = DateTime.ParseExact(DateTime.Today.ToString("dd-MM-yyyy"), "dd-MM-yyyy", null);
+            if (startDate > today || endDate > today)
+            {
+                await _logger.LogInformationAsync(
+                    "Date configuration invalid, startDate must be equal to today or earlier, end date must be equal to today or earlier.",
+                    cancellationToken);
+                return false;
+            }
+
+            if (endDate < startDate)
+            {
+                await _logger.LogInformationAsync("Date configuration invalid, end date is earlier than start date.",
+                    cancellationToken);
+                return false;
+            }
+
+            if (areaList == null || areaList.Count == 0)
             {
                 await _logger.LogInformationAsync("You must enter at least one area!", cancellationToken);
                 return false;
             }
 
-            if (!await CreateSearchersAndExtractors(areas, cancellationToken)) return false;
-
             return true;
         }
 
-        private async Task<bool> CreateSearchersAndExtractors(string[] areas, CancellationToken cancellationToken)
+        private async Task<bool> CreateSearchersAndExtractors(IEnumerable<string> areaList, CancellationToken cancellationToken)
         {
-            foreach (var area in areas)
+            foreach (var area in areaList)
             {
-                var allSites = _container.Resolve<ISystemConfig>().SupportedAreas.ToLower().Split(',').ToList();
+                var allAreas = _container.Resolve<ISystemConfig>().SupportedAreas.ToLower().Split(',').ToList();
 
-                if (area.Trim().ToLower() != "all" && !allSites.Contains(area.Trim().ToLower()))
+                if (!allAreas.Contains(area))
                 {
                     await _logger.LogInformationAsync($"Invalid area entered {area}", cancellationToken);
                     return false;
                 }
 
-                if (area.Trim().ToLower() == "all")
-                {
-                    foreach (var ar in allSites)
-                    {
-                        CreateSearcher(ar);
-                        CreateExtractor(ar);
-                    }
-                }
-
-                CreateSearcher(area.Trim().ToLower());
-                CreateExtractor(area.Trim().ToLower());
+                CreateSearcher(area);
+                CreateExtractor(area);
             }
 
             return true;
@@ -107,13 +149,13 @@ namespace PlanningScraper
 
         private void CreateExtractor(string area)
         {
-            var extractor = new ExtractorType(area, _container.Resolve<IPlanningDataExtractor>(area.Trim().ToLower()));
+            var extractor = new ExtractorType(area, _container.Resolve<IPlanningDataExtractor>(area));
             _extractors.Add(extractor);
         }
 
         private void CreateSearcher(string area)
         {
-            var searcher = new SearcherType(area, _container.Resolve<ISiteSearcher>(area.Trim().ToLower()));
+            var searcher = new SearcherType(area, _container.Resolve<ISiteSearcher>(area));
             _searchers.Add(searcher);
         }
     }

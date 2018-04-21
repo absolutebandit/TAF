@@ -19,6 +19,15 @@ namespace PlanningScraper.Communications
             _logger = logger;
             _systemConfig = systemConfig;
             this.BaseAddress = new Uri(baseAddress);
+            AddDefaultRequestHeaders();
+        }
+
+        private void AddDefaultRequestHeaders()
+        {
+            this.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            this.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+            this.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+            this.DefaultRequestHeaders.Add("Accept-Language", "en-GB,en;q=0.9,en-US;q=0.8,fr;q=0.7");
         }
 
         public async Task<HttpResponseMessage> PostAsync(Func<Task<HttpRequestMessage>> requestBuilder, CancellationToken cancellationToken)
